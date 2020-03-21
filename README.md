@@ -3,7 +3,7 @@
 
 _Joshua Peeples, Weihuang Xu, and Alina Zare_
 
-Note: If this code is used, cite it: Joshua, & Alina Zare. (2020, March 21). GatorSense/Histogram_Layer: Initial Release (Version v1.0). Zenodo. http://doi.org/10.5281/zenodo.2638378  [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2638378.svg)](https://doi.org/10.5281/zenodo.2638378)
+Note: If this code is used, cite it: Joshua, & Alina Zare. (2020, March 21). GatorSense/Histogram_Layer: Initial Release (Version v1.0).
 
 [[`arXiv`](https://arxiv.org/abs/2001.00215)]
 
