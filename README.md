@@ -78,7 +78,7 @@ https://github.com/GatorSense/Histogram_Layer
 
 ## License
 
-This source code is licensed under the license found in the [`LICENSE`](LICENSE) file in the root directory of this source tree.
+This source code is licensed under the license found in the [`LICENSE`](LICENSE.txt) file in the root directory of this source tree.
 
 This product is Copyright (c) 2020 J. Peeples, W. Xu, and A. Zare. All rights reserved.
 
