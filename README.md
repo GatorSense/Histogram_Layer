@@ -1,164 +1,104 @@
-# MICI:
-**Multiple Instance Choquet Integral for Classifier Fusion and Regression**
+# Histogram Layer:
+**Histogram Layers for Texture Analysis**
 
-_Xiaoxiao Du and Alina Zare_
+_Joshua Peeples, Weihuang Xu, and Alina Zare_
 
-Note: If this code is used, cite it: Xiaoxiao Du, & Alina Zare. (2019, April 12). GatorSense/MICI: Initial Release (Version v1.0). Zenodo. http://doi.org/10.5281/zenodo.2638378  [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2638378.svg)](https://doi.org/10.5281/zenodo.2638378)
+Note: If this code is used, cite it: Joshua, & Alina Zare. (2020, March 21). GatorSense/Histogram_Layer: Initial Release (Version v1.0). Zenodo. http://doi.org/10.5281/zenodo.2638378  [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2638378.svg)](https://doi.org/10.5281/zenodo.2638378)
 
-[[`IEEEXplore (MICI Classifier Fusion paper)`](https://ieeexplore.ieee.org/document/7743905)]
+[[`arXiv`](https://arxiv.org/abs/2001.00215)]
 
-[[`IEEEXplore (MICI Classifier Fusion and Regression paper)`](https://ieeexplore.ieee.org/document/8528500)]
-
-[[`arXiv`](https://arxiv.org/abs/1803.04048)]
-
-[[`BibTeX`](#CitingMICI)]
+[[`BibTeX`](#CitingHist)]
 
 
-In this repository, we provide the papers and code for the Multiple Instance Choquet Integral (MICI) Classifier Fusion and/or Regression Algorithms.
+In this repository, we provide the paper and code for histogram layer models from "Histogram Layers for Texture Analysis."
 
 ## Installation Prerequisites
 
-This code uses MATLAB Statistics and Machine Learning Toolbox,
-MATLAB Optimization Toolbox and MATLAB Parallel Computing Toolbox.
+This code uses python, pytorch, and barbar. 
+Please use [[`Pytorch's website`](https://pytorch.org/get-started/locally/)] to download necessary packages.
+Barbar is used to show the progress of model. Please follow the instructions [[`here`](https://github.com/yusugomori/barbar)]
+to download the module.
 
 ## Demo
 
-Run `demo_main.m` in MATLAB.
+Run `Demo.py` in Python IDE (e.g., Spyder) or command line. To evaluate performance,
+run `View_Results.py` (if results are saved out).
 
 ## Main Functions
 
-The MICI Classifier Fusion and Regression Algorithm runs using the following functions.
+The histogram layer model (HistRes_B) runs using the following functions. 
 
-1. MICI Classifier Fusion (noisy-or model) Algorithm  
+1. Intialize model  
 
-```[measure, initialMeasure,Analysis] = learnCIMeasure_noisyor(TrainBags, TrainLabels, Parameters);```
+```model, input_size = intialize_model(**Parameters)```
 
-2. MICI Classifier Fusion (min-max model) Algorithm
+2. Prepare dataset(s) for model
 
- ```[measure, initialMeasure,Analysis] = learnCIMeasure_minmax(TrainBags, TrainLabels, Parameters);```
+ ```dataloaders_dict = Prepare_Dataloaders(**Parameters)```
 
-3. MICI Classifier Fusion (generalized-mean model) Algorithm
+3. Train model 
 
-```[measure, initialMeasure,Analysis] = learnCIMeasure_softmax(TrainBags, TrainLabels, Parameters);```
+```train_dict = train_model(**Parameters)```
 
-4. MICI Regression (MICIR) Algorithm
+4. Test model
 
-```[measure, initialMeasure,Analysis] = learnCIMeasure_regression(TrainBags, TrainLabels, Parameters);```
-
-
-## Inputs
-
-#The *TrainBags* input is a 1xNumTrainBags cell. Inside each cell, NumPntsInBag x nSources double -- Training bags data.
-
-#The *TrainLabels* input is a 1xNumTrainBags double vector that takes values of "1" and "0" for two-class classfication problems -- Training labels for each bag.
+```test_dict = test_model(**Parameters)```
 
 
 ## Parameters
-The parameters can be set in the following function:
+`Demo_Parameters.py`.The parameters can be set in the following script:
 
-```[Parameters] = learnCIMeasureParams();```
+```Demo_Parameters```
 
-The parameters is a MATLAB structure with the following fields:
-1. nPop: size of population
-2. sigma: sigma of Gaussians in fitness function
-3. maxIterations: maximum number of iterations
-4. eta: percentage of time to make small-scale mutation
-5. sampleVar: variance around sample mean
-6. mean: mean of CI in fitness function. This value is always set to 1 (or very close to 1) if the positive label is "1".
-7. analysis: if ="1", save all intermediate results
-8. p: the power coefficient for the generalized-mean function. Empirically, setting p(1) to a large postive number and p(2) to a large negative number works well.
-
-*Parameters can be modified by users in [Parameters] = learnCIMeasureParams() function.*
+*Before running `Demo.py`, please update `Demo_Parameters.py`.*
 
 ## Inventory
 
 ```
-https://github.com/GatorSense/MICI
+https://github.com/GatorSense/Histogram_Layer
 
 └── root dir
-    ├── demo_main.m   //Run this. Main demo file.
-    ├── demo_data_cl.mat //Demo classification data
-    ├── learnCIMeasureParams.m  //parameters function
-    ├── papers  //related publications
-    │   ├── MICI for Classifier Fusion.pdf
-    |   └── MICI Classifier Fusion and Regression for Remote Sensing Applications.pdf
+    ├── Demo.py   //Run this. Main demo file.
+    ├── Demo_Parameters.py // Parameters file for demo.
+    ├── Prepare_Data.py  // Load data for demo file.
+    ├── Prepare_Data_Results.py // Load data for results file.
+    ├── Texture_Information.py // Class names and directories for datasets
+    ├── View_Results.py // Run this after demo to view saved results
+    ├── View_Results_Parameters.py // Parameters file for results.
+    ├── papers  // Related publications
+    │   ├── peeples2020histogram.pdf
     └── util  //utility functions
-        ├── ChoquetIntegral_g_MultiSources.m  //compute CI for multiple sources
-        ├── computeci.c    //compute CI. *Need to run "mex computeci.c"*
-        ├── ismember_findrow_mex.c  //find row index if vector A is part of a row in vector B.   *Need to run "mex ismember_findrow_mex.c"*
-        ├── ismember_findrow_mex_my.m  // find row index if vector A is part of a row in vector B (uses above c code).
-        ├── share.h  //global variable header to be used in computeci.c
-        ├── learnCIMeasure_noisyor.m  //MICI Two-Class Classifier Fusion with noisy-or objective function
-        ├── learnCIMeasure_noisyor_CountME1.m  //MICI Two-Class Classifier Fusion with noisy-or objective function, using ME optimization
-        ├── learnCIMeasure_minmax.m  //MICI Two-Class Classifier Fusion with min-max objective function
-        ├── learnCIMeasure_softmax.m  //MICI Two-Class Classifier Fusion with generalized-mean objective function
-        ├── learnCIMeasure_regression.m  //MICI Regression
-        ├── evalFitness_noisyor.m  //noisy-or fitness function
-        ├── evalFitness_minmax.m  //min-max fitness function
-        ├── evalFitness_softmax.m  //generalized-mean fitness function
-        ├── evalFitness_reg.m  //regression fitness function
-        ├── invcdf_TruncatedGaussian.m //compute inverse cdf for Truncated Gaussian
-        ├── sampleMeasure.m //sample new measures
-        ├── sampleMeasure_Above.m  //sampling a new measure from top-down.
-        ├── sampleMeasure_Bottom.m  //sampling a new measure from bottom-up.
-        ├── sampleMultinomial_mat.m  //sample from a multinomial distribution.
-        ├── quadLearnChoquetMeasure_3Source.m  //code for CI-QP method, hard-coded for 3 sources
-        ├── quadLearnChoquetMeasure_4Source.m  //code for CI-QP method, hard-coded for 4 sources
-        ├── quadLearnChoquetMeasure_5Source.m  //code for CI-QP method, hard-coded for 5 sources
-        └── quadLearnChoquetMeasure_MultiSource.m  //code for the CI-QP method (learn CI measures using quadratic programming) for multiple (>=3) sources
-
-
+        ├── Compute_FDR.py  // Compute Fisher Discriminant Ratio for features
+        ├── Confusion_mats.py  // Generate confusion matrices
+        ├── Generate_TSNE_visual.py  // Generate TSNE visualization for features
+        ├── Histogram_Model.py  // Generate HistRes_B models
+        ├── Network_functions.py  // Contains functions to initialize, train, and test model 
+        ├── RBFHistogramPooling.py  // Create histogram layer 
+        ├── Save_Results.py  // Save results from demo script
+     
 ```
 
 ## License
 
 This source code is licensed under the license found in the [`LICENSE`](LICENSE) file in the root directory of this source tree.
 
-This product is Copyright (c) 2018 X. Du and A. Zare. All rights reserved.
+This product is Copyright (c) 2020 J. Peeples, W. Xu, and A. Zare. All rights reserved.
 
-## <a name="CitingMICI"></a>Citing MICI
+## <a name="CitingHist"></a>Citing Histogram Layer
 
-If you use the MICI clasifier fusion and regression algorithms, please cite the following references using the following entries.
+If you use the histogram layer code, please cite the following reference using the following entry.
 
 **Plain Text:**
 
-X. Du and A. Zare, "Multiple Instance Choquet Integral Classifier Fusion and Regression for Remote Sensing Applications," in IEEE Transactions on Geoscience and Remote Sensing, vol. 57, no. 5, pp. 2741-2753, May 2019. doi: 10.1109/TGRS.2018.2876687
-
-X. Du, A. Zare, J. M. Keller and D. T. Anderson, "Multiple Instance Choquet integral for classifier fusion," 2016 IEEE Congress on Evolutionary Computation (CEC), Vancouver, BC, 2016, pp. 1054-1061. doi: 10.1109/CEC.2016.7743905
+Peeples, J., Xu, W., & Zare, A. (2020). Histogram Layers for Texture Analysis. arXiv preprint arXiv:2001.00215.
 
 **BibTex:**
 ```
-@ARTICLE{du2018multiple,
-author={X. Du and A. Zare},
-journal={IEEE Transactions on Geoscience and Remote Sensing},
-title={Multiple Instance Choquet Integral Classifier Fusion and Regression for Remote Sensing Applications},
-year={2018},
-volume={57},
-number={5},
-pages={2741-2753}, 
-month={May},
-doi={10.1109/TGRS.2018.2876687}
-}
-```
-```
-@INPROCEEDINGS{du2016multiple,
-author={X. Du and A. Zare and J. M. Keller and D. T. Anderson},
-booktitle={IEEE Congress on Evolutionary Computation (CEC)},
-title={Multiple Instance Choquet integral for classifier fusion},
-year={2016},
-volume={},
-number={},
-pages={1054-1061},
-doi={10.1109/CEC.2016.7743905},
-month={July}
+@article{peeples2020histogram,
+  title={Histogram Layers for Texture Analysis},
+  author={Peeples, Joshua and Xu, Weihuang and Zare, Alina},
+  journal={arXiv preprint arXiv:2001.00215},
+  year={2020}
 }
 ```
 
-## <a name="Related Work"></a>Related Work
-
-Also check out our Multiple Instance Multi-Resolution Fusion (MIMRF) algorithm for multi-resolution fusion!
-
-
-[[`arXiv`](https://arxiv.org/abs/1805.00930)]
-
-[[`GitHub Code Repository`](https://github.com/GatorSense/MIMRF)]

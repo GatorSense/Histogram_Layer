@@ -28,7 +28,7 @@ def save_results(train_dict,test_dict,split,Network_parameters,num_params):
     else:
         filename = (Network_parameters['folder'] + '/'+ Network_parameters['mode'] 
                     + '/' + Network_parameters['Dataset'] + '/GAP_' +
-                    Network_parameters['model_name'] + '/Run_' + str(split + 1) + '/')            
+                    Network_parameters['Model_names'][Network_parameters['Dataset']] + '/Run_' + str(split + 1) + '/')            
     if not os.path.exists(filename):
         os.makedirs(filename)
     with open((filename + 'Test_Accuracy.txt'), "w") as output:

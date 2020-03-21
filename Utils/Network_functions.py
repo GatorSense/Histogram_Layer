@@ -4,21 +4,27 @@ Created on Tue Aug  6 10:26:08 2019
 
 @author: jpeeples
 """
+## Python standard libraries
 from __future__ import print_function
 from __future__ import division
-import torch
-import torch.nn as nn
 import numpy as np
-from torchvision import models
 import time
 import copy
-import pdb
+
+## PyTorch dependencies
+import torch
+import torch.nn as nn
+from torchvision import models
+
+## Local external libraries
 from Utils.Histogram_Model import HistRes
 from barbar import Bar
 
     
 def train_model(model, dataloaders, criterion, optimizer, device, 
-                          saved_bins=None, saved_widths=None,histogram=True,num_epochs=25,scheduler=None):
+                          saved_bins=None, saved_widths=None,histogram=True,
+                          num_epochs=25,scheduler=None,dim_reduced=True,entropy=False,
+                          ent_lambda=.1):
     since = time.time()
 
     test_acc_history = []
@@ -42,6 +48,7 @@ def train_model(model, dataloaders, criterion, optimizer, device,
             
             running_loss = 0.0
             running_corrects = 0
+            running_entropy = 0.0
 
             # Iterate over data.
             for idx, (inputs, labels, index) in enumerate(Bar(dataloaders[phase])):
@@ -56,8 +63,15 @@ def train_model(model, dataloaders, criterion, optimizer, device,
                 # track history if only in train
                 with torch.set_grad_enabled(phase == 'train'):
                     # Get model outputs and calculate loss
-                    outputs = model(inputs)
-                    loss = criterion(outputs, labels)
+                    if (histogram and entropy):
+                        outputs, hist_ent = model(inputs)
+                        loss = criterion(outputs,labels) - ent_lambda*hist_ent
+                        #print()
+                        #print(hist_ent)
+                        #print()
+                    else:
+                        outputs = model(inputs)
+                        loss = criterion(outputs, labels)
     
                     _, preds = torch.max(outputs, 1)
     
@@ -69,9 +83,13 @@ def train_model(model, dataloaders, criterion, optimizer, device,
                 # statistics
                 running_loss += loss.item() * inputs.size(0)
                 running_corrects += torch.sum(preds == labels.data)
+                if entropy:
+                    running_entropy += hist_ent.item() *inputs.size(0)
         
             epoch_loss = running_loss / (len(dataloaders[phase].sampler))
             epoch_acc = running_corrects.double() / (len(dataloaders[phase].sampler))
+            if entropy:
+                epoch_entropy = running_entropy / (len(dataloaders[phase].sampler)) 
             
             if phase == 'train':
                 if scheduler is not None:
@@ -79,9 +97,14 @@ def train_model(model, dataloaders, criterion, optimizer, device,
                 train_error_history.append(epoch_loss)
                 train_acc_history.append(epoch_acc)
                 if(histogram):
-                    #save bins and widths
-                    saved_bins[epoch+1,:] = model.histogram_layer[-1].centers.detach().cpu().numpy()
-                    saved_widths[epoch+1,:] = model.histogram_layer[-1].widths.reshape(-1).detach().cpu().numpy()
+                    if dim_reduced:
+                        #save bins and widths
+                        saved_bins[epoch+1,:] = model.histogram_layer[-1].centers.detach().cpu().numpy()
+                        saved_widths[epoch+1,:] = model.histogram_layer[-1].widths.reshape(-1).detach().cpu().numpy()
+                    else:
+                        #save bins and widths
+                        saved_bins[epoch+1,:] = model.histogram_layer.centers.detach().cpu().numpy()
+                        saved_widths[epoch+1,:] = model.histogram_layer.widths.reshape(-1).detach().cpu().numpy()
             # deep copy the model
             if phase == 'test' and epoch_acc > best_acc:
                 best_epoch = epoch
@@ -95,6 +118,9 @@ def train_model(model, dataloaders, criterion, optimizer, device,
             print()
             print('{} Loss: {:.4f} Acc: {:.4f}'.format(phase, epoch_loss, epoch_acc))               
             print()
+            if entropy:
+                print('{} Entropy: {:.4f}'.format(phase, epoch_entropy)) 
+                print()
 
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
@@ -135,7 +161,7 @@ def test_model(dataloader,model,device):
             index = index.to(device)
     
             # forward
-            outputs = model(inputs)
+            outputs,_ = model(inputs)
             _, preds = torch.max(outputs, 1)
     
             #If test, accumulate labels for confusion matrix
@@ -154,9 +180,10 @@ def test_model(dataloader,model,device):
     
     return test_dict
        
-
-def initialize_model(model_name, num_classes,channels, feature_extract=False, histogram=True,histogram_layer=None,
-                     parallel=True, use_pretrained=True):
+def initialize_model(model_name, num_classes,in_channels,out_channels, 
+                     feature_extract=False, histogram=True,histogram_layer=None,
+                     parallel=True, use_pretrained=True,add_bn=True,scale=5,
+                     feat_map_size=4,entropy=False):
     # Initialize these variables which will be set in this if statement. Each of these
     #   variables is model specific.
     model_ft = None
@@ -164,14 +191,17 @@ def initialize_model(model_name, num_classes,channels, feature_extract=False, hi
     if(histogram):
         # Initialize these variables which will be set in this if statement. Each of these
         # variables is model specific.
-        model_ft = None
-        input_size = 0
-        model_ft = HistRes(histogram_layer,parallel=parallel,model_name=model_name)
+        model_ft = HistRes(histogram_layer,parallel=parallel,
+                           model_name=model_name,add_bn=add_bn,scale=scale,entropy=entropy)
         set_parameter_requires_grad(model_ft.backbone, feature_extract)
         
-        #Reduce number of conv channels from 512 to 512/number of bins*feat_map size (2x2)
-        conv_reduce = nn.Conv2d(channels,int((channels/4)/(histogram_layer.numBins)),(1,1))
-        model_ft.histogram_layer = nn.Sequential(conv_reduce,histogram_layer)
+        #Reduce number of conv channels from input channels to input channels/number of bins*feat_map size (2x2)
+        reduced_dim = int((out_channels/feat_map_size)/(histogram_layer.numBins))
+        if (in_channels==reduced_dim): #If input channels equals reduced/increase, don't apply 1x1 convolution
+            model_ft.histogram_layer = histogram_layer
+        else:
+            conv_reduce = nn.Conv2d(in_channels,reduced_dim,(1,1))
+            model_ft.histogram_layer = nn.Sequential(conv_reduce,histogram_layer)
         if(parallel):
             num_ftrs = model_ft.fc.in_features*2
         else:
@@ -198,6 +228,6 @@ def initialize_model(model_name, num_classes,channels, feature_extract=False, hi
             num_ftrs = model_ft.fc.in_features
             model_ft.fc = nn.Linear(num_ftrs, num_classes)
             input_size = 224
-
+        
     return model_ft, input_size
 
