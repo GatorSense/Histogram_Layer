@@ -46,11 +46,9 @@ The histogram layer model (HistRes_B) runs using the following functions.
 
 
 ## Parameters
-`Demo_Parameters.py`.The parameters can be set in the following script:
+The parameters can be set in the following script:
 
-```Demo_Parameters```
-
-*Before running `Demo.py`, please update `Demo_Parameters.py`.*
+```Demo_Parameters.py```
 
 ## Inventory
 
