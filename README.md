@@ -3,7 +3,7 @@
 
 _Joshua Peeples, Weihuang Xu, and Alina Zare_
 
-Note: If this code is used, cite it: Joshua, & Alina Zare. (2020, March 21). GatorSense/Histogram_Layer: Initial Release (Version v1.0). Zenodo. https://doi.org/10.5281/zenodo.3722786  [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3722786.svg)](https://doi.org/10.5281/zenodo.3722786)
+Note: If this code is used, cite it: Joshua, & Alina Zare. (2020, March 21). GatorSense/Histogram_Layer: Initial Release (Version v1.0).
 
 [[`arXiv`](https://arxiv.org/abs/2001.00215)]
 
@@ -78,7 +78,7 @@ https://github.com/GatorSense/Histogram_Layer
 
 ## License
 
-This source code is licensed under the license found in the [`LICENSE`](LICENSE.txt) file in the root directory of this source tree.
+This source code is licensed under the license found in the [`LICENSE`](LICENSE) file in the root directory of this source tree.
 
 This product is Copyright (c) 2020 J. Peeples, W. Xu, and A. Zare. All rights reserved.
 
