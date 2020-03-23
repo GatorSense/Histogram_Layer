@@ -63,19 +63,19 @@ https://github.com/GatorSense/Histogram_Layer
     ├── Demo_Parameters.py // Parameters file for demo.
     ├── Prepare_Data.py  // Load data for demo file.
     ├── Prepare_Data_Results.py // Load data for results file.
-    ├── Texture_Information.py // Class names and directories for datasets
-    ├── View_Results.py // Run this after demo to view saved results
+    ├── Texture_Information.py // Class names and directories for datasets.
+    ├── View_Results.py // Run this after demo to view saved results.
     ├── View_Results_Parameters.py // Parameters file for results.
-    ├── papers  // Related publications
+    ├── papers  // Related publications.
     │   ├── peeples2020histogram.pdf
     └── util  //utility functions
-        ├── Compute_FDR.py  // Compute Fisher Discriminant Ratio for features
-        ├── Confusion_mats.py  // Generate confusion matrices
-        ├── Generate_TSNE_visual.py  // Generate TSNE visualization for features
-        ├── Histogram_Model.py  // Generate HistRes_B models
-        ├── Network_functions.py  // Contains functions to initialize, train, and test model 
-        ├── RBFHistogramPooling.py  // Create histogram layer 
-        ├── Save_Results.py  // Save results from demo script
+        ├── Compute_FDR.py  // Compute Fisher Discriminant Ratio for features.
+        ├── Confusion_mats.py  // Generate confusion matrices.
+        ├── Generate_TSNE_visual.py  // Generate TSNE visualization for features.
+        ├── Histogram_Model.py  // Generate HistRes_B models.
+        ├── Network_functions.py  // Contains functions to initialize, train, and test model. 
+        ├── RBFHistogramPooling.py  // Create histogram layer. 
+        ├── Save_Results.py  // Save results from demo script.
      
 ```
 
