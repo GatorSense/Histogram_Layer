@@ -9,54 +9,78 @@ View_Results.py
 """
 
 ######## ONLY CHANGE PARAMETERS BELOW ########
-
 #Location of saved results of all runs
 folder = 'Saved_Models/'
 
-#Visualization parameters
+#Visualization parameters for figures
 fig_size = 12
 font_size = 16
 
-#Flag for TSNE visuals
-#Separate TSNE will visualize histogram and conv features separately
-#Number of images to view for TSNE
+#Flag to use histogram model or baseline global average pooling (GAP)
+# Set to True to use histogram layer and False to use GAP model
+histogram = False
+
+#Select dataset. Set to number of desired texture dataset
+data_selection = 1
+Dataset_names = { 1: 'DTD', 2: 'GTOS-mobile', 3: 'MINC_2500'}
+
+#Flag for TSNE visuals, set to True to create TSNE visual of features
+#Set to false to not generate TSNE visuals
+#Separate TSNE will visualize histogram and GAP features separately
+#If set to True, TSNE of histogram and GAP features will be created
+#Number of images to view for TSNE (defaults to all training imgs unless
+#value is less than total training images).
 TSNE_visual = True
 Separate_TSNE = False
 Num_TSNE_images = 10000
 
-#Flag to use histogram model or baseline
-histogram = False
-
-#Select dataset
-data_selection = 1
-Dataset_names = { 1: 'DTD', 2: 'GTOS-mobile', 3: 'MINC_2500'}
-num_workers = 0
+#Number of bins for histogram layer. Recommended values are 4, 8 and 16.
+#Set number of bins to powers of 2 (e.g., 2, 4, 8, etc.)
+#For HistRes_B models using ResNet18 and ResNet50, do not set number of bins
+#higher than 128 and 512 respectively. Note: a 1x1xK convolution is used to 
+#downsample feature maps before binning process. If the bin values are set
+#higher than 128 or 512 for HistRes_B models using ResNet18 or ResNet50 
+#respectively, than an error will occur due to attempting to reduce the number of 
+#features maps to values less than one
+numBins = 4
 
 #Flag for feature extraction. False, train whole model. True, only update 
-#fully connected and histogram layers parameters
-#Flag to use pretrained model from ImageNet or train from scratch
-#Flag to add BN to convolutional features
-#Scale at which to apply histogram layer
+#fully connected and histogram layers parameters (default: False)
+#Flag to use pretrained model from ImageNet or train from scratch (default: True)
+#Flag to add BN to convolutional features (default:True)
+#Location/Scale at which to apply histogram layer (default: 5 (at the end))
 feature_extraction = False
 use_pretrained = True
 add_bn = True
 scale = 5
 
-#Set learning rate for new and pretrained layers
+#Set learning rate for new and pretrained (pt) layers
+#Recommended values are to have the new layers at 
+#a learning rate 10 times larger than the pt learning rate.
+#e.g., new_lr = .001 and pt_lr = .01
 pt_lr = .001
 new_lr = .01
 
-#Set momentum for SGD optimizer
+#Set momentum for SGD optimizer. 
+#Recommended value is .9 (used in paper)
 alpha = .9
 
-# Parameters of Histogram Layer
+#Parameters of Histogram Layer
+#For no padding, set 0. If padding is desired,
+#enter amount of zero padding to add to each side of image 
+#(did not use padding in paper, recommended value is 0 for padding)
 padding = 0
-numBins = 16
 
-#Apply rotation to test set
+#Apply rotation to test set (did not use in paper)
+#Set rotation to True to add rotation, False if no rotation (used in paper)
+#Recommend values are between 0 and 25 degrees
+#Can use to test robustness of model to rotation transformation
 rotation = False
 degrees = 25
 
+#Reduce dimensionality based on number of output feature maps from GAP layer
+#Used to compute number of features from histogram layer
+out_channels = {"resnet50": 2048, "resnet18": 512}
 
 #Set whether to have the histogram layer inline or parallel (default: parallel)
 #Set whether to use sum (unnormalized count) or average pooling (normalized count)
@@ -66,34 +90,36 @@ parallel = True
 normalize_count = True
 normalize_bins = True
 
-#Flag for if model was run on multiple GPUs and parallelized
-Parallelize_model = False
-
-
 #Set step_size and decay rate for scheduler
+#In paper, learning rate was decayed factor of .1 every ten epochs (recommended)
 step_size = 10
 gamma = .1
 
-# Batch size for training and epochs
-batch_size = {'train': 64, 'val': 256, 'test': 64}
+#Batch size for training and epochs. If running experiments on single GPU,
+#training batch size is recommended to be 64. If using at least two GPUs, 
+#the recommended training batch size is 128 (as done in paper)
+batch_size = {'train': 64, 'val': 256, 'test': 256}
 num_epochs = 30
 
-#Resize the image before center crop
+#Resize the image before center crop. Recommended values for resize is 256 (used in paper), 384,
+#and 512 (from http://openaccess.thecvf.com/content_cvpr_2018/papers/Xue_Deep_Texture_Manifold_CVPR_2018_paper.pdf)
+#Center crop size is recommended to be 256.
 resize_size = 256
 center_size = 256
 
-#Pin memory for dataloader
+#Pin memory for dataloader (set to True for experiments)
 pin_memory = True
+
+#Set number of workers, i.e., how many subprocesses to use for data loading.
+#Usually set to 0 or 1. Can set to more if multiple machines are used.
+#Number of workers for experiments for two GPUs was three
+num_workers = 0
 
 #Output feature map size after histogram layer
 feat_map_size = 4
 
-#Reduce dimensionality based on number of output feature maps
-out_channels = {"resnet50": 2048, "resnet18": 512}
-
-######## ONLY CHANGE PARAMETERS ABOVE ########
-
 #Set filter size and stride based on scale
+# Current values will produce 2x2 local feature maps
 if scale == 1:
     stride = [32, 32] 
     in_channels = {"resnet50": 64, "resnet18": 64}
@@ -115,6 +141,7 @@ else:
     in_channels = {"resnet50": 2048, "resnet18": 512}
     kernel_size = {"resnet50": [4,4],  "resnet18": [4,4]}
     
+######## ONLY CHANGE PARAMETERS ABOVE ########    
 if feature_extraction:
     mode = 'Feature_Extraction'
 else:
