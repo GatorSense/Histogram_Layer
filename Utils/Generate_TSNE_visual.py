@@ -78,37 +78,37 @@ def Generate_TSNE_visual(dataloaders_dict,model,sub_dir,device,class_names,
         FDR_scores, log_FDR_scores = Compute_Fisher_Score(features_extracted,GT_val)
         np.savetxt((sub_dir+'train_FDR.txt'),FDR_scores,fmt='%.2E')
         np.savetxt((sub_dir+'train_log_FDR.txt'),log_FDR_scores,fmt='%.2f')
-        # features_embedded = TSNE(n_components=2,verbose=1,init='random',random_state=42).fit_transform(features_extracted)
+        features_embedded = TSNE(n_components=2,verbose=1,init='random',random_state=42).fit_transform(features_extracted)
         num_feats = features_extracted.shape[1]
     
-        # fig6, ax6 = plt.subplots()
-        # colors = colormap.rainbow(np.linspace(0, 1, len(class_names)))
-        # for texture in range (0, len(class_names)):
-        #     x = features_embedded[[np.where(GT_val==texture)],0]
-        #     y = features_embedded[[np.where(GT_val==texture)],1]
+        fig6, ax6 = plt.subplots()
+        colors = colormap.rainbow(np.linspace(0, 1, len(class_names)))
+        for texture in range (0, len(class_names)):
+            x = features_embedded[[np.where(GT_val==texture)],0]
+            y = features_embedded[[np.where(GT_val==texture)],1]
             
-        #     ax6.scatter(x, y, color = colors[texture,:],label=class_names[texture])
+            ax6.scatter(x, y, color = colors[texture,:],label=class_names[texture])
          
-        # # plt.title('TSNE Visualization of Training Data Features')
-        # # plt.legend(class_names)
+        plt.title('TSNE Visualization of Training Data Features')
+        plt.legend(class_names)
         
-        # # box = ax6.get_position()
-        # # ax6.set_position([box.x0, box.y0 + box.height * 0.1, box.width, box.height * 0.9])
-        # # ax6.legend(loc='upper center',bbox_to_anchor=(.5,-.05),fancybox=True,ncol=8)
-        # plt.axis('off')
-        # plt.show()
-        # fig6.savefig((sub_dir + '1_TSNE_Visual_Test_Data.png'), dpi=fig6.dpi)
-        # plt.close()
+        # box = ax6.get_position()
+        # ax6.set_position([box.x0, box.y0 + box.height * 0.1, box.width, box.height * 0.9])
+        # ax6.legend(loc='upper center',bbox_to_anchor=(.5,-.05),fancybox=True,ncol=8)
+        plt.axis('off')
+        plt.show()
+        fig6.savefig((sub_dir + '1_TSNE_Visual_Test_Data.png'), dpi=fig6.dpi)
+        plt.close()
         
-        # #Plot tSNE with images
-        # fig9, ax9 = plt.subplots()
-        # plot_components(features_extracted,features_embedded,thumb_frac=0.1,images=saved_imgs,cmap=None)
-        # # plt.title('TSNE Visualization of Test Data Features with Images')
-        # plt.grid('off')
-        # plt.axis('off')
-        # plt.show()
-        # fig9.savefig((sub_dir + '2_TSNE_Visual_Test_Data_Images.png'),dpi=fig9.dpi)
-        # plt.close()
+        #Plot tSNE with images
+        fig9, ax9 = plt.subplots()
+        plot_components(features_extracted,features_embedded,thumb_frac=0.1,images=saved_imgs,cmap=None)
+        plt.title('TSNE Visualization of Test Data Features with Images')
+        plt.grid('off')
+        plt.axis('off')
+        plt.show()
+        fig9.savefig((sub_dir + '2_TSNE_Visual_Test_Data_Images.png'),dpi=fig9.dpi)
+        plt.close()
     
 
         if (Separate_TSNE):
