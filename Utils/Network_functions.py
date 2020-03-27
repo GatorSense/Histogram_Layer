@@ -23,8 +23,7 @@ from barbar import Bar
     
 def train_model(model, dataloaders, criterion, optimizer, device, 
                           saved_bins=None, saved_widths=None,histogram=True,
-                          num_epochs=25,scheduler=None,dim_reduced=True,entropy=False,
-                          ent_lambda=.1):
+                          num_epochs=25,scheduler=None,dim_reduced=True):
     since = time.time()
 
     test_acc_history = []
@@ -48,7 +47,6 @@ def train_model(model, dataloaders, criterion, optimizer, device,
             
             running_loss = 0.0
             running_corrects = 0
-            running_entropy = 0.0
 
             # Iterate over data.
             for idx, (inputs, labels, index) in enumerate(Bar(dataloaders[phase])):
@@ -63,15 +61,8 @@ def train_model(model, dataloaders, criterion, optimizer, device,
                 # track history if only in train
                 with torch.set_grad_enabled(phase == 'train'):
                     # Get model outputs and calculate loss
-                    if (histogram and entropy):
-                        outputs, hist_ent = model(inputs)
-                        loss = criterion(outputs,labels) - ent_lambda*hist_ent
-                        #print()
-                        #print(hist_ent)
-                        #print()
-                    else:
-                        outputs = model(inputs)
-                        loss = criterion(outputs, labels)
+                    outputs = model(inputs)
+                    loss = criterion(outputs, labels)
     
                     _, preds = torch.max(outputs, 1)
     
@@ -83,13 +74,9 @@ def train_model(model, dataloaders, criterion, optimizer, device,
                 # statistics
                 running_loss += loss.item() * inputs.size(0)
                 running_corrects += torch.sum(preds == labels.data)
-                if entropy:
-                    running_entropy += hist_ent.item() *inputs.size(0)
         
             epoch_loss = running_loss / (len(dataloaders[phase].sampler))
             epoch_acc = running_corrects.double() / (len(dataloaders[phase].sampler))
-            if entropy:
-                epoch_entropy = running_entropy / (len(dataloaders[phase].sampler)) 
             
             if phase == 'train':
                 if scheduler is not None:
@@ -118,9 +105,6 @@ def train_model(model, dataloaders, criterion, optimizer, device,
             print()
             print('{} Loss: {:.4f} Acc: {:.4f}'.format(phase, epoch_loss, epoch_acc))               
             print()
-            if entropy:
-                print('{} Entropy: {:.4f}'.format(phase, epoch_entropy)) 
-                print()
 
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
@@ -183,7 +167,7 @@ def test_model(dataloader,model,device):
 def initialize_model(model_name, num_classes,in_channels,out_channels, 
                      feature_extract=False, histogram=True,histogram_layer=None,
                      parallel=True, use_pretrained=True,add_bn=True,scale=5,
-                     feat_map_size=4,entropy=False):
+                     feat_map_size=4):
     # Initialize these variables which will be set in this if statement. Each of these
     #   variables is model specific.
     model_ft = None
@@ -192,7 +176,7 @@ def initialize_model(model_name, num_classes,in_channels,out_channels,
         # Initialize these variables which will be set in this if statement. Each of these
         # variables is model specific.
         model_ft = HistRes(histogram_layer,parallel=parallel,
-                           model_name=model_name,add_bn=add_bn,scale=scale,entropy=entropy)
+                           model_name=model_name,add_bn=add_bn,scale=scale)
         set_parameter_requires_grad(model_ft.backbone, feature_extract)
         
         #Reduce number of conv channels from input channels to input channels/number of bins*feat_map size (2x2)

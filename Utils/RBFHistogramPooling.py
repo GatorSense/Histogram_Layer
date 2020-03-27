@@ -100,7 +100,7 @@ class HistogramLayer(nn.Module):
         #Enforce sum to one constraint
         # Add small positive constant in case sum is zero
         if(self.normalize_bins):
-            xx,hist_ent = self.constrain_bins(xx)
+            xx = self.constrain_bins(xx)
         
         #Get localized histogram output, if normalize, average count
         if(self.normalize_count):

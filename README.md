@@ -59,7 +59,7 @@ The parameters can be set in the following script:
 https://github.com/GatorSense/Histogram_Layer
 
 └── root dir
-    ├── Demo.py   //Run this. Main demo file.
+    ├── demo.py   //Run this. Main demo file.
     ├── Demo_Parameters.py // Parameters file for demo.
     ├── Prepare_Data.py  // Load data for demo file.
     ├── Prepare_Data_Results.py // Load data for results file.
