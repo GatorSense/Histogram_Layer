@@ -24,7 +24,7 @@ to download the module.
 
 ## Demo
 
-Run `Demo.py` in Python IDE (e.g., Spyder) or command line. To evaluate performance,
+Run `demo.py` in Python IDE (e.g., Spyder) or command line. To evaluate performance,
 run `View_Results.py` (if results are saved out).
 
 ## Main Functions
