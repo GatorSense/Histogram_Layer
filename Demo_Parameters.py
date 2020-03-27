@@ -85,9 +85,10 @@ normalize_bins = True
 step_size = 10
 gamma = .1
 
-#Batch size for training and epochs. If running experiments on single GPU,
+#Batch size for training and epochs. If running experiments on single GPU (e.g., 2080ti),
 #training batch size is recommended to be 64. If using at least two GPUs, 
 #the recommended training batch size is 128 (as done in paper)
+#May need to reduce batch size if CUDA out of memory issue occurs
 batch_size = {'train': 64, 'val': 256, 'test': 256}
 num_epochs = 30
 

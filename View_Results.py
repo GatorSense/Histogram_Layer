@@ -1,33 +1,32 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Oct 28 10:15:33 2019
-
+Generate results from saved models
 @author: jpeeples
 """
 
+## Python standard libraries
 from __future__ import print_function
-import torch
 from sklearn.metrics import confusion_matrix
 import numpy as np
 import matplotlib.pyplot as plt
-from Utils.Confusion_mats import plot_confusion_matrix,plot_avg_confusion_matrix
 from sklearn.metrics import classification_report
-import scipy.stats
 import pandas as pd
 import os
 from sklearn.metrics import matthews_corrcoef
 
-#from Utils.Generate_hist_vid import Generate_hist_vid
-from Utils.Generate_histogram_visual import Generate_histogram_visual
-from Utils.Generate_TSNE_visual import Generate_TSNE_visual
+## PyTorch dependencies
+import torch
 import torch.nn as nn
-import pdb
-from Texture_information import Class_names,Data_dirs
+
+## Local external libraries
+from Utils.Generate_TSNE_visual import Generate_TSNE_visual
+from Texture_information import Class_names
 from View_Results_Parameters import Results_parameters
 from Utils.Network_functions import initialize_model
 from Prepare_Data_Results import Prepare_DataLoaders
 from Utils.RBFHistogramPooling import HistogramLayer
-
+from Utils.Confusion_mats import plot_confusion_matrix,plot_avg_confusion_matrix
 
 #Location of experimental results
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
