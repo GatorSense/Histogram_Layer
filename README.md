@@ -68,7 +68,7 @@ https://github.com/GatorSense/Histogram_Layer
     ├── View_Results_Parameters.py // Parameters file for results.
     ├── papers  // Related publications.
     │   ├── peeples2020histogram.pdf
-    └── util  //utility functions
+    └── Utils  //utility functions
         ├── Compute_FDR.py  // Compute Fisher Discriminant Ratio for features.
         ├── Confusion_mats.py  // Generate confusion matrices.
         ├── Generate_TSNE_visual.py  // Generate TSNE visualization for features.
