@@ -145,7 +145,7 @@ def test_model(dataloader,model,device):
             index = index.to(device)
     
             # forward
-            outputs,_ = model(inputs)
+            outputs = model(inputs)
             _, preds = torch.max(outputs, 1)
     
             #If test, accumulate labels for confusion matrix
