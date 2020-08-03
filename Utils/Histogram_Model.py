@@ -8,7 +8,7 @@ import torch
 class HistRes(nn.Module):
     
     def __init__(self,histogram_layer,parallel=True,model_name ='resnet18',
-                 add_bn=True,scale=5):
+                 add_bn=True,scale=5,use_pretrained=True):
         
         #inherit nn.module
         super(HistRes,self).__init__()
@@ -17,12 +17,12 @@ class HistRes(nn.Module):
         self.scale = scale
         #Default to use resnet18, otherwise use Resnet50
         if model_name == 'resnet18':
-            self.backbone = models.resnet18(pretrained=True)
+            self.backbone = models.resnet18(pretrained=use_pretrained)
             if self.add_bn:
                 self.bn_norm = nn.BatchNorm2d(512)
             
         elif model_name == 'resnet50':
-            self.backbone = models.resnet50(pretrained=True)
+            self.backbone = models.resnet50(pretrained=use_pretrained)
             if self.add_bn:
                 self.bn_norm = nn.BatchNorm2d(2048)
             

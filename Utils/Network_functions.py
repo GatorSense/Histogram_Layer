@@ -176,7 +176,8 @@ def initialize_model(model_name, num_classes,in_channels,out_channels,
         # Initialize these variables which will be set in this if statement. Each of these
         # variables is model specific.
         model_ft = HistRes(histogram_layer,parallel=parallel,
-                           model_name=model_name,add_bn=add_bn,scale=scale)
+                           model_name=model_name,add_bn=add_bn,scale=scale,
+                           use_pretrained=use_pretrained)
         set_parameter_requires_grad(model_ft.backbone, feature_extract)
         
         #Reduce number of conv channels from input channels to input channels/number of bins*feat_map size (2x2)
