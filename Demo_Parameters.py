@@ -20,6 +20,10 @@ folder = 'Saved_Models/'
 # Set to True to use histogram layer and False to use GAP model 
 histogram = True
 
+#Select histogram layer type: RBF or Piecewise Linear. 
+#Recommended is RBF (implements histogram function in paper)
+histogram_type = 'RBF'
+
 #Select dataset. Set to number of desired texture dataset
 data_selection = 1
 Dataset_names = { 1: 'DTD', 2: 'GTOS-mobile', 3: 'MINC_2500'}
@@ -89,7 +93,7 @@ gamma = .1
 #training batch size is recommended to be 64. If using at least two GPUs, 
 #the recommended training batch size is 128 (as done in paper)
 #May need to reduce batch size if CUDA out of memory issue occurs
-batch_size = {'train': 64, 'val': 256, 'test': 256}
+batch_size = {'train': 8, 'val': 16, 'test': 16}
 num_epochs = 30
 
 #Resize the image before center crop. Recommended values for resize is 256 (used in paper), 384,
@@ -181,4 +185,5 @@ Network_parameters = {'save_results': save_results,'folder': folder,
                       'Splits': Splits, 'feature_extraction': feature_extraction,
                       'hist_model': Hist_model_name, 'use_pretrained': use_pretrained,
                       'add_bn': add_bn, 'pin_memory': pin_memory, 'scale': scale,
-                      'degrees': degrees, 'rotation': rotation}
+                      'degrees': degrees, 'rotation': rotation, 
+                      'histogram_type': histogram_type}

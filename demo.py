@@ -23,7 +23,8 @@ import torch.optim as optim
 
 ## Local external libraries
 from Utils.Network_functions import initialize_model, train_model,test_model
-from Utils.RBFHistogramPooling import HistogramLayer
+from Utils.RBFHistogramPooling import HistogramLayer as RBFHist
+from Utils.LinearHistogramPooling import HistogramLayer as LinearHist
 from Utils.Save_Results import save_results
 from Demo_Parameters import Network_parameters
 from Prepare_Data import Prepare_DataLoaders
@@ -66,11 +67,21 @@ for split in range(0, numRuns):
     saved_widths = np.zeros((Network_parameters['num_epochs']+1,
                              numBins*int(num_feature_maps/(feat_map_size*numBins))))
     
-    histogram_layer = HistogramLayer(int(num_feature_maps/(feat_map_size*numBins)),
-                                     Network_parameters['kernel_size'][model_name],
-                                     num_bins=numBins,stride=Network_parameters['stride'],
-                                     normalize_count=Network_parameters['normalize_count'],
-                                     normalize_bins=Network_parameters['normalize_bins'])
+    #Initialize histogram layer based on type
+    if Network_parameters['histogram_type'] == 'RBF':
+        histogram_layer = RBFHist(int(num_feature_maps/(feat_map_size*numBins)),
+                                  Network_parameters['kernel_size'][model_name],
+                                  num_bins=numBins,stride=Network_parameters['stride'],
+                                  normalize_count=Network_parameters['normalize_count'],
+                                  normalize_bins=Network_parameters['normalize_bins'])
+    elif Network_parameters['histogram_type'] == 'Linear': 
+        histogram_layer = LinearHist(int(num_feature_maps/(feat_map_size*numBins)),
+                                  Network_parameters['kernel_size'][model_name],
+                                  num_bins=numBins,stride=Network_parameters['stride'],
+                                  normalize_count=Network_parameters['normalize_count'],
+                                  normalize_bins=Network_parameters['normalize_bins'])
+    else:
+        raise RuntimeError('Invalid type for histogram layer')
     
     # Initialize the histogram model for this run
     model_ft, input_size = initialize_model(model_name, num_classes,

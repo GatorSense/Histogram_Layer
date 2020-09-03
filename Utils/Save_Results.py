@@ -18,12 +18,15 @@ def save_results(train_dict,test_dict,split,Network_parameters,num_params):
         if(Network_parameters['parallel']):
             filename = (Network_parameters['folder'] + '/' + Network_parameters['mode'] 
                         + '/' + Network_parameters['Dataset'] + '/' 
-                        + Network_parameters['hist_model'] + '/Parallel/Run_' 
-                        + str(split + 1) + '/')
+                        + Network_parameters['hist_model'] +'_'+ 
+                        Network_parameters['histogram_type']
+                        +'/Parallel/Run_' + str(split + 1) + '/')
         else:
             filename = (Network_parameters['folder'] + '/' + Network_parameters['mode'] 
                         + '/' + Network_parameters['Dataset'] + '/' 
-                        + Network_parameters['hist_model']  + '/Inline/Run_' + str(split + 1) + '/')
+                        + Network_parameters['hist_model'] +'_'+ 
+                         Network_parameters['histogram_type']
+                        + '/Inline/Run_' + str(split + 1) + '/')
     #Baseline model
     else:
         filename = (Network_parameters['folder'] + '/'+ Network_parameters['mode'] 

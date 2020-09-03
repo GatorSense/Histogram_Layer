@@ -66,8 +66,7 @@ https://github.com/GatorSense/Histogram_Layer
     ├── Texture_Information.py // Class names and directories for datasets.
     ├── View_Results.py // Run this after demo to view saved results.
     ├── View_Results_Parameters.py // Parameters file for results.
-    ├── papers  // Related publications.
-    │   ├── peeples2020histogram.pdf
+    ├── papers  // Links to related publications.
     └── Utils  //utility functions
         ├── Compute_FDR.py  // Compute Fisher Discriminant Ratio for features.
         ├── Confusion_mats.py  // Generate confusion matrices.
