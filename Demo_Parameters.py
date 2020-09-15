@@ -22,7 +22,7 @@ histogram = True
 
 #Select histogram layer type: RBF or Piecewise Linear. 
 #Recommended is RBF (implements histogram function in paper)
-histogram_type = 'RBF'
+histogram_type = 'Linear'
 
 #Select dataset. Set to number of desired texture dataset
 data_selection = 1
@@ -93,7 +93,7 @@ gamma = .1
 #training batch size is recommended to be 64. If using at least two GPUs, 
 #the recommended training batch size is 128 (as done in paper)
 #May need to reduce batch size if CUDA out of memory issue occurs
-batch_size = {'train': 8, 'val': 16, 'test': 16}
+batch_size = {'train': 8, 'val': 256, 'test': 256}
 num_epochs = 30
 
 #Resize the image before center crop. Recommended values for resize is 256 (used in paper), 384,

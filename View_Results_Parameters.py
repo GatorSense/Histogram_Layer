@@ -11,6 +11,7 @@ View_Results.py
 ######## ONLY CHANGE PARAMETERS BELOW ########
 #Location of saved results of all runs
 folder = 'Saved_Models/'
+save_results = True
 
 #Visualization parameters for figures
 fig_size = 12
@@ -19,6 +20,9 @@ font_size = 16
 #Flag to use histogram model or baseline global average pooling (GAP)
 # Set to True to use histogram layer and False to use GAP model
 histogram = False
+
+#Parallelize results
+Parallelize_model = True
 
 #Select dataset. Set to number of desired texture dataset
 data_selection = 1

@@ -96,7 +96,6 @@ class HistogramLayer(nn.Module):
         ## xx is the input and is a torch.tensor
         ##each element of output is the frequency for the bin for that window
         
-        pdb.set_trace()
         #Pass through first convolution to learn bin centers: |x-center|
         xx = torch.abs(self.bin_centers_conv(xx))
         
