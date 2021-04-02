@@ -24,9 +24,15 @@ histogram = True
 #Recommended is RBF (implements histogram function in paper)
 histogram_type = 'Linear'
 
+#Parallelize results
+Parallelize_model = True
+
 #Select dataset. Set to number of desired texture dataset
 data_selection = 1
 Dataset_names = { 1: 'DTD', 2: 'GTOS-mobile', 3: 'MINC_2500'}
+
+#Set random state for K fold CV for repeatability of data
+random_state = 1
 
 #Number of bins for histogram layer. Recommended values are 4, 8 and 16.
 #Set number of bins to powers of 2 (e.g., 2, 4, 8, etc.)
@@ -113,6 +119,16 @@ num_workers = 0
 #Output feature map size after histogram layer
 feat_map_size = 4
 
+#Flag for TSNE visuals, set to True to create TSNE visual of features
+#Set to false to not generate TSNE visuals
+#Separate TSNE will visualize histogram and GAP features separately
+#If set to True, TSNE of histogram and GAP features will be created
+#Number of images to view for TSNE (defaults to all training imgs unless
+#value is less than total training images).
+TSNE_visual = True
+Separate_TSNE = False
+Num_TSNE_images = 10000
+
 #Set filter size and stride based on scale
 # Current values will produce 2x2 local feature maps
 if scale == 1:
@@ -186,4 +202,8 @@ Network_parameters = {'save_results': save_results,'folder': folder,
                       'hist_model': Hist_model_name, 'use_pretrained': use_pretrained,
                       'add_bn': add_bn, 'pin_memory': pin_memory, 'scale': scale,
                       'degrees': degrees, 'rotation': rotation, 
-                      'histogram_type': histogram_type}
+                      'histogram_type': histogram_type, 'random_state': random_state,
+                      'TSNE_visual': TSNE_visual,
+                      'Separate_TSNE': Separate_TSNE, 'Parallelize': Parallelize_model,
+                      'Num_TSNE_images': Num_TSNE_images,'fig_size': fig_size,
+                      'font_size': font_size}

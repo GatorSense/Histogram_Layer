@@ -65,7 +65,6 @@ https://github.com/GatorSense/Histogram_Layer
     ├── Prepare_Data_Results.py // Load data for results file.
     ├── Texture_Information.py // Class names and directories for datasets.
     ├── View_Results.py // Run this after demo to view saved results.
-    ├── View_Results_Parameters.py // Parameters file for results.
     ├── papers  // Links to related publications.
     └── Utils  //utility functions
         ├── Compute_FDR.py  // Compute Fisher Discriminant Ratio for features.

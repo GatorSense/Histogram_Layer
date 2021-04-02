@@ -26,7 +26,7 @@ def train_model(model, dataloaders, criterion, optimizer, device,
                           num_epochs=25,scheduler=None,dim_reduced=True):
     since = time.time()
 
-    test_acc_history = []
+    val_acc_history = []
     train_acc_history = []
     train_error_history = []
     test_error_history = []
@@ -38,8 +38,8 @@ def train_model(model, dataloaders, criterion, optimizer, device,
         print('Epoch {}/{}'.format(epoch, num_epochs - 1))
         print('-' * 10)
 
-        # Each epoch has a training and testidation phase
-        for phase in ['train', 'test']:
+        # Each epoch has a training and validation phase
+        for phase in ['train', 'val']:
             if phase == 'train':
                 model.train()  # Set model to training mode 
             else:
@@ -93,14 +93,14 @@ def train_model(model, dataloaders, criterion, optimizer, device,
                         saved_bins[epoch+1,:] = model.histogram_layer.centers.detach().cpu().numpy()
                         saved_widths[epoch+1,:] = model.histogram_layer.widths.reshape(-1).detach().cpu().numpy()
             # deep copy the model
-            if phase == 'test' and epoch_acc > best_acc:
+            if phase == 'val' and epoch_acc > best_acc:
                 best_epoch = epoch
                 best_acc = epoch_acc
                 best_model_wts = copy.deepcopy(model.state_dict())
 
-            if phase == 'test':
-                test_error_history.append(epoch_loss)
-                test_acc_history.append(epoch_acc)
+            if phase == 'val':
+                val_error_history.append(epoch_loss)
+                val_acc_history.append(epoch_acc)
 
             print()
             print('{} Loss: {:.4f} Acc: {:.4f}'.format(phase, epoch_loss, epoch_acc))               
@@ -108,15 +108,15 @@ def train_model(model, dataloaders, criterion, optimizer, device,
 
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
-    print('Best test Acc: {:4f}'.format(best_acc))
+    print('Best val Acc: {:4f}'.format(best_acc))
     print()
 
     # load best model weights
     model.load_state_dict(best_model_wts)
     
     #Returning error (unhashable), need to fix
-    train_dict = {'best_model_wts': best_model_wts, 'test_acc_track': test_acc_history, 
-                  'test_error_track': test_error_history,'train_acc_track': train_acc_history, 
+    train_dict = {'best_model_wts': best_model_wts, 'val_acc_track': val_acc_history, 
+                  'val_error_track': val_error_history,'train_acc_track': train_acc_history, 
                   'train_error_track': train_error_history,'best_epoch': best_epoch, 
                   'saved_bins': saved_bins, 'saved_widths': saved_widths}
     

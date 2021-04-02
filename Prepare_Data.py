@@ -8,6 +8,7 @@ Load datasets for models
 from __future__ import print_function
 from __future__ import division
 import numpy as np
+from sklearn.model_selection import KFold
 
 ## PyTorch dependencies
 import torch
@@ -37,7 +38,7 @@ def Prepare_DataLoaders(Network_parameters, split,input_size=224):
                 transforms.ToTensor(),
                 transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
             ]),
-            'test': transforms.Compose([
+            'val': transforms.Compose([
                 transforms.Resize(Network_parameters['center_size']),
                 transforms.CenterCrop(input_size),
                 transforms.ToTensor(),
@@ -53,7 +54,7 @@ def Prepare_DataLoaders(Network_parameters, split,input_size=224):
                 transforms.ToTensor(),
                 transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
             ]),
-            'test': transforms.Compose([
+            'val': transforms.Compose([
                 transforms.Resize(Network_parameters['center_size']),
                 transforms.CenterCrop(input_size),
                 transforms.RandomAffine(Network_parameters['degrees']),
@@ -69,32 +70,50 @@ def Prepare_DataLoaders(Network_parameters, split,input_size=224):
                                            img_transform=data_transforms['train'])
         validation_dataset = DTD_data(data_dir, data = 'val',
                                            numset = split + 1,
-                                           img_transform=data_transforms['train'])
+                                           img_transform=data_transforms['val'])
         
         test_dataset = DTD_data(data_dir, data = 'test',
                                            numset = split + 1,
-                                           img_transform=data_transforms['test'])     
-        #Combine training and test datasets
-        train_dataset = torch.utils.data.ConcatDataset((train_dataset,validation_dataset))  
+                                           img_transform=data_transforms['val'])     
+        # #Combine training and test datasets
+        # train_dataset = torch.utils.data.ConcatDataset((train_dataset,validation_dataset))  
         
     elif Dataset == 'MINC_2500':
         train_dataset = MINC_2500_data(data_dir, data='train',
                                            numset = split + 1,
                                            img_transform=data_transforms['train'])
         
+        validation_dataset = MINC_2500_data(data_dir, data='val',
+                                           numset = split + 1,
+                                           img_transform=data_transforms['val'])
+        
         test_dataset = MINC_2500_data(data_dir, data = 'test',
                                            numset = split + 1,
-                                           img_transform=data_transforms['test'])
+                                           img_transform=data_transforms['val'])
     else:
         # Create training and test datasets
-        train_dataset = GTOS_mobile_single_data(data_dir, train = True,
-                                           image_size=Network_parameters['resize_size'],
-                                           img_transform=data_transforms['train'])  
+        dataset = GTOS_mobile_single_data(data_dir, train = True,
+                                          image_size=Network_parameters['resize_size'],
+                                          img_transform=data_transforms['train']) 
+        X = np.ones(len(train_dataset))
+        train_indices = []
+        val_indices = []
+    
+        kf = KFold(n_splits=splits,shuffle=True,
+                   random_state=Network_parameters['random_state'])
+        
+        for train_index, val_index in kf.split(X):
+             train_indices.append(train_index)
+             val_indices.append(val_index)
+        
+        train_dataset = torch.utils.data.Subset(dataset, indices['train'][split])
+        validation_dataset = torch.utils.data.Subset(dataset, indices['val'][split])
         test_dataset = GTOS_mobile_single_data(data_dir, train = False,
-                                           img_transform=data_transforms['test'])
+                                           img_transform=data_transforms['val'])
 
         
-    image_datasets = {'train': train_dataset, 'test': test_dataset}
+    image_datasets = {'train': train_dataset, 'val': validaton_dataset,
+                      'test': test_dataset}
         
 
     # Create training and test dataloaders
@@ -102,6 +121,6 @@ def Prepare_DataLoaders(Network_parameters, split,input_size=224):
                                                        batch_size=Network_parameters['batch_size'][x], 
                                                        shuffle=True, 
                                                        num_workers=Network_parameters['num_workers'],
-                                                       pin_memory=Network_parameters['pin_memory']) for x in ['train', 'test']}
+                                                       pin_memory=Network_parameters['pin_memory']) for x in ['train', 'val','test']}
     
     return dataloaders_dict

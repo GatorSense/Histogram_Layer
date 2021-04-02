@@ -40,7 +40,6 @@ class HistRes(nn.Module):
 
         #All scales except for scale 5 default to parallel
         #Will add series implementation later
-        #pdb.set_trace()
         if self.scale == 1:
             output = self.forward_scale_1(x)
         elif self.scale == 2:

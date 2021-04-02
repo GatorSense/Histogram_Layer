@@ -46,7 +46,7 @@ class MINC_2500_data(Dataset):
                     })
         elif data == 'val':  # val
             sample_dir = os.path.join(
-                imgset_dir + 'labels/validate' + str(numset) + '.txt')  # check if string includes train
+                imgset_dir + 'labels/validate' + str(numset) + '.txt')  # check if string includes validate
             with open(sample_dir) as g:
                 line = g.readline()
                 comp_label = line[line.find('/')+1:][:line.find('/')-1].rstrip('\n')
@@ -68,7 +68,7 @@ class MINC_2500_data(Dataset):
                     })
         else:  # test
             sample_dir = os.path.join(
-                imgset_dir + 'labels/test' + str(numset) + '.txt')  # check if string includes train
+                imgset_dir + 'labels/test' + str(numset) + '.txt')  # check if string includes test
             with open(sample_dir) as g:
                 line = g.readline()
                 comp_label = line[line.find('/')+1:][:line.find('/')-1].rstrip('\n')

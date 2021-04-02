@@ -103,7 +103,7 @@ for split in range(0, numRuns):
     print("Number of parameters: %d" % (num_params))    
     print("Initializing Datasets and Dataloaders...")
     
-    # Create training and validation dataloaders
+    # Create training, validation, and test dataloaders
     dataloaders_dict = Prepare_DataLoaders(Network_parameters,split,input_size=input_size)
     
     #Save the initial values for bins and widths of histogram layer

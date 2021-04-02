@@ -31,7 +31,8 @@ def save_results(train_dict,test_dict,split,Network_parameters,num_params):
     else:
         filename = (Network_parameters['folder'] + '/'+ Network_parameters['mode'] 
                     + '/' + Network_parameters['Dataset'] + '/GAP_' +
-                    Network_parameters['Model_names'][Network_parameters['Dataset']] + '/Run_' + str(split + 1) + '/')            
+                    Network_parameters['Model_names'][Network_parameters['Dataset']] + '/Run_' + str(split + 1) + '/')    
+        
     if not os.path.exists(filename):
         os.makedirs(filename)
     with open((filename + 'Test_Accuracy.txt'), "w") as output:
@@ -40,15 +41,16 @@ def save_results(train_dict,test_dict,split,Network_parameters,num_params):
         os.makedirs(filename)
     with open((filename + 'Num_parameters.txt'), "w") as output:
         output.write(str(num_params))
-    np.save((filename + 'Training_Error_track'), train_dict['train_error_track'])
-    np.save((filename + 'Test_Error_track'), train_dict['test_acc_track'])
-    torch.save(train_dict['best_model_wts'],(filename+'Best_Weights.pt'))
-    np.save((filename + 'Training_Accuracy_track'), train_dict['train_acc_track'])
-    np.save((filename + 'Test_Accuracy_track'), train_dict['test_acc_track'])
-    np.save((filename + 'best_epoch'), train_dict['best_epoch'])
-    if(Network_parameters['histogram']):
-        np.save((filename + 'Saved_bins'), train_dict['saved_bins'])
-        np.save((filename + 'Saved_widths'), train_dict['saved_widths'])
-    np.save((filename + 'GT'), test_dict['GT'])
-    np.save((filename + 'Predictions'), test_dict['Predictions'])
-    np.save((filename + 'Index'), test_dict['Index'])
+    
+    #Save training and testing dictionary, save model using torch
+    torch.save(train_dict['best_model_wts'], filename + 'Best_Weights.pt')
+   
+    #Remove model from training dictionary
+    train_dict.pop('best_model_wts')
+    output_train = open(filename + 'train_dict.pkl','wb')
+    pickle.dump(train_dict,output_train)
+    output_train.close()
+    
+    output_test = open(filename + 'test_dict.pkl','wb')
+    pickle.dump(test_dict,output_test)
+    output_test.close()

@@ -14,6 +14,7 @@ from sklearn.metrics import classification_report
 import pandas as pd
 import os
 from sklearn.metrics import matthews_corrcoef
+import pickle
 
 ## PyTorch dependencies
 import torch
@@ -22,7 +23,7 @@ import torch.nn as nn
 ## Local external libraries
 from Utils.Generate_TSNE_visual import Generate_TSNE_visual
 from Texture_information import Class_names
-from View_Results_Parameters import Results_parameters
+from Demo_Parameters import Network_parameters as Results_parameters
 from Utils.Network_functions import initialize_model
 from Prepare_Data_Results import Prepare_DataLoaders
 from Utils.RBFHistogramPooling import HistogramLayer
@@ -71,12 +72,14 @@ for split in range(0, NumRuns):
         if(Results_parameters['parallel']):
             sub_dir = (Results_parameters['folder'] + Results_parameters['mode'] 
                         + '/' + Results_parameters['Dataset'] + '/' 
-                        + Results_parameters['hist_model'] + '/Parallel/Run_' 
+                        + Results_parameters['hist_model']  + '_'+ 
+                        Results_parameters['histogram_type'] + '/Parallel/Run_' 
                         + str(split + 1) + '/')
         else:
             sub_dir = (Results_parameters['folder'] + Results_parameters['mode'] 
                         + '/' + Results_parameters['Dataset'] + '/' 
-                        + Results_parameters['hist_model']  + '/Inline/Run_' 
+                        + Results_parameters['hist_model']  + '_'+ 
+                        Results_parameters['histogram_type'] + '/Inline/Run_' 
                         + str(split + 1) + '/')
     #Baseline model
     else:
@@ -85,19 +88,21 @@ for split in range(0, NumRuns):
                     Results_parameters['Model_names'][Results_parameters['Dataset']] 
                     + '/Run_' + str(split + 1) + '/') 
         
-    #Load files (Python)
-    Training_Error_track = np.load(sub_dir+'Training_Error_track.npy')
-    Training_Accuracy_track = np.load(sub_dir+'Training_Accuracy_track.npy',allow_pickle=True)
-    GT = np.load(sub_dir+'GT.npy')
-    predictions = np.load(sub_dir+'Predictions.npy')
-    Index = np.load(sub_dir+'Index.npy')
-    
     # #Load model
-    histogram_layer = HistogramLayer(int(num_feature_maps/(feat_map_size*numBins)),
-                                     Results_parameters['kernel_size'][model_name],
-                                     num_bins=numBins,stride=Results_parameters['stride'],
-                                     normalize_count=Results_parameters['normalize_count'],
-                                     normalize_bins=Results_parameters['normalize_bins'])
+    if Results_parameters['histogram_type'] == 'RBF':
+        histogram_layer = RBFHist(int(num_feature_maps/(feat_map_size*hist_bin)),
+                                  Results_parameters['kernel_size'][model_name],
+                                  num_bins=Results_parameters['numBins'],stride=Results_parameters['stride'],
+                                  normalize_count=Results_parameters['normalize_count'],
+                                  normalize_bins=Results_parameters['normalize_bins'])
+    elif Results_parameters['histogram_type'] == 'Linear': 
+        histogram_layer = LinearHist(int(num_feature_maps/(feat_map_size*hist_bin)),
+                                  Results_parameters['kernel_size'][model_name],
+                                  num_bins=Results_parameters['numBins'],stride=Results_parameters['stride'],
+                                  normalize_count=Results_parameters['normalize_count'],
+                                  normalize_bins=Results_parameters['normalize_bins'])
+    else:
+        raise RuntimeError('Invalid type for histogram layer')
     
     # Initialize the histogram model for this run
     model, input_size = initialize_model(model_name, num_classes,
@@ -119,9 +124,16 @@ for split in range(0, NumRuns):
         model = nn.DataParallel(model)
     model.load_state_dict(best_weights)
     model = model.to(device)
-    Validation_Error_track = np.load(sub_dir+'Test_Error_track.npy',allow_pickle=True)
-    Validation_Accuracy_track = np.load(sub_dir+'Test_Accuracy_track.npy',allow_pickle=True)
-    Best_epoch = np.load(sub_dir+'best_epoch.npy')
+    
+    #Load files
+    pdb.set_trace()
+    train_pkl_file = open(sub_dir+'train_dict.pkl','rb')
+    train_dict = pickle.load(train_pkl_file)
+    train_pkl_file.close()
+    
+    test_pkl_file = open(sub_dir+'test_dict.pkl','rb')
+    test_dict = pickle.load(test_pkl_file)
+    test_pkl_file.close()
  
 
     if (Results_parameters['TSNE_visual']):
@@ -145,9 +157,12 @@ for split in range(0, NumRuns):
    
     #Create CM for testing data
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    cm = confusion_matrix(GT,predictions)
+    cm = confusion_matrix(test_dict['GT'],test_dict['Predictions'])
+    
     #Create classification report
-    report = classification_report(GT,predictions,target_names=class_names,output_dict=True)
+    report = classification_report(test_dict['GT'],test_dict['Predictions'],
+                                   target_names=class_names,output_dict=True)
+    
     #Convert to dataframe and save as .CSV file
     df = pd.DataFrame(report).transpose()
     #Save to CSV
@@ -155,29 +170,33 @@ for split in range(0, NumRuns):
     
     # visualize results
     fig2 = plt.figure()
-    plt.plot(Training_Error_track.T)
-    plt.plot(Validation_Error_track)
+    plt.plot(train_dict['train_error_track'])
+    plt.plot(train_dict['val_error_track'])
+    
     # Mark best epoch and validation error
-    plt.plot([Best_epoch], Validation_Error_track[Best_epoch].cpu(), marker='o', markersize=3, color='red')
-    plt.suptitle('Learning Curve for {} Epochs'.format(len(Training_Error_track)))
-    plt.xlabel('Epochs')
+    plt.plot(train_dict['best_epoch'],
+             train_dict['val_error_track'][train_dict['best_epoch']], 
+             marker='o', markersize=3, color='red')
+    plt.suptitle('Learning Curve for {} Epochs'.format(len(train_dict['train_error_track'])))
+    plt.xlabel('Epoch')
     plt.ylabel('Error')
-    plt.legend(['Training', 'Testing', 'Best Epoch'], loc='upper right')
-    plt.show()
+    plt.legend(['Training', 'Validation', 'Best Epoch'], loc='upper right')
     fig2.savefig((sub_dir + 'Learning Curve.png'), dpi=fig2.dpi)
     plt.close()
     
     # visualize results
     fig3 = plt.figure()
-    plt.plot(Training_Accuracy_track.T)
-    plt.plot(Validation_Accuracy_track.T)
+    plt.plot(train_dict['train_acc_track'])
+    plt.plot(train_dict['val_acc_track'])
+    
     # Mark best epoch and validation error
-    plt.plot([Best_epoch], Validation_Accuracy_track[Best_epoch].cpu().numpy(), marker='o', markersize=3, color='red')
-    plt.suptitle('Accuracy for {} Epochs'.format(len(Training_Error_track)))
-    plt.xlabel('Epochs')
+    plt.plot(train_dict['best_epoch'], 
+             train_dict['val_acc_track'][train_dict['best_epoch']].cpu().numpy(),
+             marker='o', markersize=3, color='red')
+    plt.suptitle('Accuracy for {} Epochs'.format(len(train_dict['train_acc_track'])))
+    plt.xlabel('Epoch')
     plt.ylabel('Accuracy')
-    plt.legend(['Training', 'Testing', 'Best Epoch'], loc='upper right')
-    plt.show()
+    plt.legend(['Training', 'Validation', 'Best Epoch'], loc='upper right')
     fig3.savefig((sub_dir + 'Accuracy Curve.png'), dpi=fig2.dpi)
     plt.close()
 
@@ -193,12 +212,13 @@ for split in range(0, NumRuns):
     
     # Get accuracy of each cm
     accuracy[split] = 100 * sum(np.diagonal(cm)) / sum(sum(cm))
+    
     # Write to text file
     with open((sub_dir + 'Accuracy.txt'), "w") as output:
         output.write(str(accuracy[split]))
         
     #Compute Matthews correlation coefficient
-    MCC[split] = matthews_corrcoef(GT,predictions)
+    MCC[split] = matthews_corrcoef(test_dict['GT'],test_dict['Predictions'])
     
     # Write to text file
     with open((sub_dir + 'MCC.txt'), "w") as output:
