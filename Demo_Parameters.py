@@ -129,6 +129,10 @@ TSNE_visual = True
 Separate_TSNE = False
 Num_TSNE_images = 10000
 
+#Visualization parameters for figures
+fig_size = 12
+font_size = 16
+
 #Set filter size and stride based on scale
 # Current values will produce 2x2 local feature maps
 if scale == 1:

@@ -99,20 +99,20 @@ def Prepare_DataLoaders(Network_parameters, split,input_size=224):
         train_indices = []
         val_indices = []
     
-        kf = KFold(n_splits=splits,shuffle=True,
+        kf = KFold(n_splits=Network_parameters['Splits'][Dataset],shuffle=True,
                    random_state=Network_parameters['random_state'])
         
         for train_index, val_index in kf.split(X):
              train_indices.append(train_index)
              val_indices.append(val_index)
         
-        train_dataset = torch.utils.data.Subset(dataset, indices['train'][split])
-        validation_dataset = torch.utils.data.Subset(dataset, indices['val'][split])
+        train_dataset = torch.utils.data.Subset(dataset, train_indices[split])
+        validation_dataset = torch.utils.data.Subset(dataset, val_indices[split])
         test_dataset = GTOS_mobile_single_data(data_dir, train = False,
                                            img_transform=data_transforms['val'])
 
         
-    image_datasets = {'train': train_dataset, 'val': validaton_dataset,
+    image_datasets = {'train': train_dataset, 'val': validation_dataset,
                       'test': test_dataset}
         
 

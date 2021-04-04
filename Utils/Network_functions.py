@@ -29,7 +29,7 @@ def train_model(model, dataloaders, criterion, optimizer, device,
     val_acc_history = []
     train_acc_history = []
     train_error_history = []
-    test_error_history = []
+    val_error_history = []
 
     best_model_wts = copy.deepcopy(model.state_dict())
     best_acc = 0.0
