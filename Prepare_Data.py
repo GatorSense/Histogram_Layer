@@ -95,7 +95,7 @@ def Prepare_DataLoaders(Network_parameters, split,input_size=224):
         dataset = GTOS_mobile_single_data(data_dir, train = True,
                                           image_size=Network_parameters['resize_size'],
                                           img_transform=data_transforms['train']) 
-        X = np.ones(len(train_dataset))
+        X = np.ones(len(dataset))
         train_indices = []
         val_indices = []
     
