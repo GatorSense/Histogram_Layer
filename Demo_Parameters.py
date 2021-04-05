@@ -24,6 +24,10 @@ histogram = True
 #Recommended is RBF (implements histogram function in paper)
 histogram_type = 'Linear'
 
+#Flag to create separate validation set
+#For paper, only used train/test split (default: False)
+val_split = False
+
 #Parallelize results
 Parallelize_model = True
 
@@ -210,4 +214,4 @@ Network_parameters = {'save_results': save_results,'folder': folder,
                       'TSNE_visual': TSNE_visual,
                       'Separate_TSNE': Separate_TSNE, 'Parallelize': Parallelize_model,
                       'Num_TSNE_images': Num_TSNE_images,'fig_size': fig_size,
-                      'font_size': font_size}
+                      'font_size': font_size, 'val_split': val_split}

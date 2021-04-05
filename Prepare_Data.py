@@ -8,7 +8,7 @@ Load datasets for models
 from __future__ import print_function
 from __future__ import division
 import numpy as np
-from sklearn.model_selection import KFold
+from sklearn.model_selection import StratifiedKFold
 
 ## PyTorch dependencies
 import torch
@@ -68,15 +68,21 @@ def Prepare_DataLoaders(Network_parameters, split,input_size=224):
         train_dataset = DTD_data(data_dir, data='train',
                                            numset = split + 1,
                                            img_transform=data_transforms['train'])
-        validation_dataset = DTD_data(data_dir, data = 'val',
-                                           numset = split + 1,
-                                           img_transform=data_transforms['val'])
         
         test_dataset = DTD_data(data_dir, data = 'test',
                                            numset = split + 1,
-                                           img_transform=data_transforms['val'])     
+                                           img_transform=data_transforms['val'])   
+        
         # #Combine training and test datasets
-        # train_dataset = torch.utils.data.ConcatDataset((train_dataset,validation_dataset))  
+        if Network_parameters['val_split']:
+            validation_dataset = DTD_data(data_dir, data = 'val',
+                                               numset = split + 1,
+                                               img_transform=data_transforms['val'])
+        else:
+            validation_dataset = DTD_data(data_dir, data = 'val',
+                                               numset = split + 1,
+                                               img_transform=data_transforms['train'])
+            train_dataset = torch.utils.data.ConcatDataset((train_dataset,validation_dataset))  
         
     elif Dataset == 'MINC_2500':
         train_dataset = MINC_2500_data(data_dir, data='train',
@@ -96,13 +102,14 @@ def Prepare_DataLoaders(Network_parameters, split,input_size=224):
                                           image_size=Network_parameters['resize_size'],
                                           img_transform=data_transforms['train']) 
         X = np.ones(len(dataset))
+        Y = dataset.targets
         train_indices = []
         val_indices = []
     
-        kf = KFold(n_splits=Network_parameters['Splits'][Dataset],shuffle=True,
+        skf = StratifiedKFold(n_splits=Network_parameters['Splits'][Dataset],shuffle=True,
                    random_state=Network_parameters['random_state'])
         
-        for train_index, val_index in kf.split(X):
+        for train_index, val_index in skf.split(X):
              train_indices.append(train_index)
              val_indices.append(val_index)
         
@@ -111,10 +118,13 @@ def Prepare_DataLoaders(Network_parameters, split,input_size=224):
         test_dataset = GTOS_mobile_single_data(data_dir, train = False,
                                            img_transform=data_transforms['val'])
 
-        
-    image_datasets = {'train': train_dataset, 'val': validation_dataset,
-                      'test': test_dataset}
-        
+    #Do train/val/test split or train/test split only (validating on test data)    
+    if Network_parameters['val_split']:
+        image_datasets = {'train': train_dataset, 'val': validation_dataset,
+                          'test': test_dataset}
+    else:
+        image_datasets = {'train': train_dataset, 'val': test_dataset,
+                          'test': test_dataset}
 
     # Create training and test dataloaders
     dataloaders_dict = {x: torch.utils.data.DataLoader(image_datasets[x], 
