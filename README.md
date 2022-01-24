@@ -8,6 +8,8 @@ Note: If this code is used, cite it: Joshua Peeples, Weihuang Xu, & Alina Zare.
 Zenodo. https://doi.org/10.5281/zenodo.3731417
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3731417.svg)](https://doi.org/10.5281/zenodo.3731417)
 
+[[`IEEE Transactions on AI`](https://ieeexplore.ieee.org/document/9652037)]
+
 [[`arXiv`](https://arxiv.org/abs/2001.00215)]
 
 [[`BibTeX`](#CitingHist)]
@@ -89,15 +91,20 @@ If you use the histogram layer code, please cite the following reference using t
 
 **Plain Text:**
 
-Peeples, J., Xu, W., & Zare, A. (2020). Histogram Layers for Texture Analysis. arXiv preprint arXiv:2001.00215.
+Peeples, J., Xu, W., & Zare, A. (2021). "Histogram Layers for Texture Analysis," 
+in IEEE Transactions on Artificial Intelligence, DOI 10.1109/TAI.2021.3135804.
 
 **BibTex:**
 ```
-@article{peeples2020histogram,
-  title={Histogram Layers for Texture Analysis},
-  author={Peeples, Joshua and Xu, Weihuang and Zare, Alina},
-  journal={arXiv preprint arXiv:2001.00215},
-  year={2020}
+@Article{Peeples2021Histogram,
+Title = {Histogram Layers for Texture Analysis},
+Author = {Peeples, Joshua and Xu, Weihuang  and Zare, Alina},
+Journal = {IEEE Transactions on Artificial Intelligence},
+Volume = {},
+Year = {2021},
+number={}
+pages={1-1}
+doi={10.1109/TAI.2021.3135804}
 }
 ```
 
